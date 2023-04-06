@@ -42,7 +42,21 @@ def primera_carga(cursor):
         flag = True
     archivo.close()
 
-
+def promedio_artista(cursor, artista):
+    b = 0
+    lista = cursor.execute("SELECT total_streams FROM repositorio_musica WHERE artist_name = '"+artista+"'")
+    largo = 0
+    for i in list(lista.fetchall()):
+        largo+=1
+        b = b+i[0]
+    if b == 0:
+        print("No se encontraron reproducciones asociadas a ese artista")
+    else:
+        print(artista+ " tiene "+str(b//largo)+" en promedio de sus reproducciones.")
+    # print(b, largo)
+    # print(b)
+    # print("El promedio de reproduciones de "+artista+" es : "+b)
+    return
 
 def main():
     coneccion = pyodbc.connect(str_conect)
@@ -55,7 +69,7 @@ def main():
         cursor.execute("CREATE TABLE repositorio_musica (id int IDENTITY(1,1) PRIMARY KEY, position int, artist_name VARCHAR(100), song_name VARCHAR(100), days int, top_10 int, peak_position bigint, peak_position_time VARCHAR(10), peak_streams bigint, total_streams bigint)")
         primera_carga(cursor=cursor)
         cursor.execute("CREATE TABLE lista_favoritos (id int PRIMARY KEY, song_name VARCHAR(100), artist_name VARCHAR(100), fecha_agregada DATE)")
-        cursor.execute("CREATE TABLE reproduccion (id int PRIMARY KEY, song_name VARCHAR(100), artist_name VARCHAR(100), fecha_reproduccion DATE, can_reproducciones bigint, favorito bit)")
+        cursor.execute("CREATE TABLE reproduccion (id int PRIMARY KEY, song_name VARCHAR(100), artist_name VARCHAR(100), fecha_reproduccion DATE, cant_reproducciones bigint, favorito bit)")
 
 
 
@@ -78,14 +92,16 @@ def main():
         elif a == 4:
             a
         elif a == 5:
-            
             a
         # elif a == 6:
         # elif a == 7:
         # elif a == 8:
         # elif a == 9:
         # elif a == 10:
-        # elif a == 11:
+        elif a == 11:
+            print("Por favor ingrese el nombre del artista deseado:")
+            artista = input()
+            promedio_artista(cursor, artista)
 
     #     a = 0
     
