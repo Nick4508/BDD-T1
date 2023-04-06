@@ -75,6 +75,17 @@ def main():
             b
         elif a == 3:
             b
+        elif a == 4:
+            a
+        elif a == 5:
+            a
+        # elif a == 6:
+        # elif a == 7:
+        # elif a == 8:
+        # elif a == 9:
+        # elif a == 10:
+        # elif a == 11:
+
     #     a = 0
     
     cursor.commit()
