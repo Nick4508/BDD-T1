@@ -58,19 +58,23 @@ def main():
         cursor.execute("CREATE TABLE reproduccion (id int PRIMARY KEY, song_name VARCHAR(100), artist_name VARCHAR(100), fecha_reproduccion DATE, can_reproducciones bigint, favorito bit)")
 
 
+
     # cursor.execute("DELETE FROM repositorio_musica")
     
 
-    # for x in range(len(lineas)):
-    #     a,b,c,d,e,f,g,h,i = tuple(lineas[x].strip().split(";"))
-    #     # cursor.execute("INSERT INTO repositorio_musica (position,artist_name,song_name,days,top_10,peak_position,peak_time,peak_streams,total_streams) values ("+a+","+b+","+c+","+d+","+e+","+f+","+g+","+h+","+i+")")
-    #     print(lineas[x])
-    #     exit()
+   
     opciones = True
-
     print("Bienvenido a Spot-USM, elija una de estas opciones para realizar:")
-    # while opciones:
-        
+
+
+    while opciones:
+        a = int(input("INGRESE OPCION: "))
+        if a == 1:
+            b
+        elif a == 2:
+            b
+        elif a == 3:
+            b
     #     a = 0
     
     cursor.commit()
