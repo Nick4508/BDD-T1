@@ -16,8 +16,6 @@ import pyodbc
 str_conect = "Driver={SQL Server};Server=LAPTOP-QKCFS38M\SQLEXPRESS;Database=Spot-USM;Trusted_Connection=True" #nick
 # str_conect = "Driver={SQL Server};Server=LAPTOP-334LDJSK\SQLEXPRESS;Database=Spot-USM;Trusted_Connection=True" #mat
 
-#cursor.execute("CREATE TABLE reproduccion (id int PRIMARY KEY, song_name VARCHAR(100), artist_name VARCHAR(100), fecha_reproduccion DATE, can_reproducciones bigint, favorito bit)")
-#cursor.execute("CREATE TABLE lista_favoritos (id int PRIMARY KEY, song_name VARCHAR(100), artist_name VARCHAR(100), fecha_agregada DATE)")
 
 
 def mostrar_opciones():
@@ -47,12 +45,20 @@ def primera_carga(cursor):
 
 
 def main():
-    #cursor.execute("CREATE TABLE repositorio_musica (id int IDENTITY(1,1) PRIMARY KEY, position int, artist_name VARCHAR(100), song_name VARCHAR(100), days int, top_10 int, peak_position bigint, peak_position_time VARCHAR(10), peak_streams bigint, total_streams bigint)")
     coneccion = pyodbc.connect(str_conect)
     cursor = coneccion.cursor()    
+    # cursor.execute("DROP TABLE repositorio_musica")
+    # cursor.execute("DROP TABLE lista_favoritos")
+    # cursor.execute("DROP TABLE reproduccion")
 
-    cursor.execute("DELETE FROM repositorio_musica")
-    # primera_carga(cursor=cursor)
+    if not cursor.tables(table = "repositorio_musica").fetchone():
+        cursor.execute("CREATE TABLE repositorio_musica (id int IDENTITY(1,1) PRIMARY KEY, position int, artist_name VARCHAR(100), song_name VARCHAR(100), days int, top_10 int, peak_position bigint, peak_position_time VARCHAR(10), peak_streams bigint, total_streams bigint)")
+        primera_carga(cursor=cursor)
+        cursor.execute("CREATE TABLE lista_favoritos (id int PRIMARY KEY, song_name VARCHAR(100), artist_name VARCHAR(100), fecha_agregada DATE)")
+        cursor.execute("CREATE TABLE reproduccion (id int PRIMARY KEY, song_name VARCHAR(100), artist_name VARCHAR(100), fecha_reproduccion DATE, can_reproducciones bigint, favorito bit)")
+
+
+    # cursor.execute("DELETE FROM repositorio_musica")
     
 
     # for x in range(len(lineas)):
@@ -63,9 +69,9 @@ def main():
     opciones = True
 
     print("Bienvenido a Spot-USM, elija una de estas opciones para realizar:")
-    while opciones:
+    # while opciones:
         
-        a = 0
+    #     a = 0
     
     cursor.commit()
     cursor.close()
