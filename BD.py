@@ -42,16 +42,42 @@ def primera_carga(cursor):
         flag = True
     archivo.close()
 
-
+def promedio_artista(cursor, artista):
+    b = 0
+    lista = cursor.execute("SELECT total_streams FROM repositorio_musica WHERE artist_name = '"+artista+"'")
+    largo = 0
+    for i in list(lista.fetchall()):
+        largo+=1
+        b = b+i[0]
+    if b == 0:
+        print("No se encontraron reproducciones asociadas a ese artista")
+    else:
+        print(artista+ " tiene "+str(b//largo)+" en promedio de sus reproducciones.")
+    # print(b, largo)
+    # print(b)
+    # print("El promedio de reproduciones de "+artista+" es : "+b)
+    return
 
 def buscar(cursor, nombre_cancion):
-    return 0
+    lista = cursor.execute("SELECT song_name FROM repositorio_musica WHERE song_name = '"+nombre_cancion+"'")
+    lista2 = cursor.execute("SELECT * FROM artistsong ('"+nombre_cancion+"')")
+    print(list(lista2.fetchall()))
+    if len(list(lista2.fetchall())) >= 1:
+        canciones = []
+        for i in list(lista2.fetchall()):
+            print("Hay mas de una")
+            # Si hay mas de una cancion igual ver que el artista sea diferente
+    print("Coincidencias encontradas")
+    for i in list(lista2.fetchall()):        
+        print("Canción: "+i[0]+", del artista: "+i[1])
+
+    return
 
 
 
 def main():
     coneccion = pyodbc.connect(str_conect)
-    cursor = coneccion.cursor()    
+    cursor = coneccion.cursor()
     # cursor.execute("DROP TABLE repositorio_musica")
     # cursor.execute("DROP TABLE lista_favoritos")
     # cursor.execute("DROP TABLE reproduccion")
@@ -68,8 +94,10 @@ def main():
     
     opciones = True
     print("Bienvenido a Spot-USM, elija una de estas opciones para realizar:")
-
+    cursor.execute("DROP FUNCTION artistsong")
     # cursor.execute("CREATE FUNCTION GetSong (@nombre_cancion VARCHAR(100))RETURNS table as RETURN(SELECT artist_name, cant_reproducciones, fecha_reproduccion FROM reproduccion WHERE song_name like '%'+@nombre_cancion+'%')")
+    cursor.execute("CREATE FUNCTION artistsong (@nombre_cancion VARCHAR(100))RETURNS table as RETURN(SELECT song_name,artist_name FROM repositorio_musica WHERE song_name like '%'+@nombre_cancion+'%')")
+
     while opciones:
         a = int(input("INGRESE OPCION: "))
         if a == 1:
@@ -81,12 +109,17 @@ def main():
         elif a == 4:
             opciones = False
         elif a == 5:
+            nombre = input("Ingrese el nombre de la canción: ")
+            buscar(cursor, nombre)
             opciones = False
         elif a == 6:
             nombre = input("Ingrese el nombre de la canción: ")
-            cursor.execute("SELECT * FROM GetSong('"+nombre+"')")
-            opciones = False
 
+            opciones = False
+        elif a == 11:
+            print("Por favor ingrese el nombre del artista deseado:")
+            artista = input()
+            promedio_artista(cursor, artista)
     #         a
         # elif a == 6:
         # elif a == 7:
