@@ -1,5 +1,5 @@
 import pyodbc
-
+from datetime import datetime
 ###############################################################################################################################################
 # archivo:   position   artist_name   song_name   days    top_10    peak_position    peak_position_time    peak_streams    total_streams
 #               int         str         str        int      int         int                 str                 int             int
@@ -94,6 +94,47 @@ def busqueda_repositorio(cursor, opcion, nombre):
 
     # return
 
+def hacer_favorito(cursor,song_name):
+    query = cursor.execute("SELECT id, song_name, artist_name FROM repositorio_musica WHERE song_name like '%"+song_name+"%'")
+    canciones = query.fetchall()
+
+    print("Elija el numero de la cancion que quiere hacer favorita")
+    for i in canciones:
+        print(str(i[0])+")",str(i[1]), "del artista :", str(i[2]))
+    id = int(input("Cancion numero: "))
+
+    query2 = cursor.execute("SELECT id, song_name, artist_name FROM repositorio_musica WHERE id = '"+str(id)+"'")
+    cancion = query2.fetchall()
+    
+    cursor.execute("INSERT INTO lista_favoritos (id,song_name,artist_name,fecha_agregada) VALUES (?,?,?,?)",cancion[0][0],cancion[0][1],cancion[0][2],datetime.now())
+    return
+
+def mostrar_favoritos(cursor):
+    query = cursor.execute("SELECT * FROM lista_favoritos")
+    listado = query.fetchall()
+
+    flag = True
+    if len(listado) == 0:
+        print("No tienes canciones en favorito")
+    else:
+        if flag:
+            print("Tus canciones favoritas son :")
+        for i in listado:
+            print(str(i[0])+")"+i[1] , "del artista", i[2], "la cual fue agregada en la fecha: ",i[3])
+        
+
+    return
+
+def quitar_favorito(cursor):
+    query = cursor.execute("SELECT * FROM lista_favoritos")
+    favoritos = query.fetchall()
+
+
+    for i in favoritos:
+        print(str(i[0])+")",i[1],"del artista",i[2])
+    a = int(input("Elija la cancion que quiere quitar :"))
+    cursor.execute("DELETE FROM lista_favoritos WHERE id = ? ",a)    
+
 def main():
     coneccion = pyodbc.connect(str_conect)
     cursor = coneccion.cursor()    
@@ -122,11 +163,14 @@ def main():
         if a == 1:
             b
         elif a == 2:
-            b
+            mostrar_favoritos(cursor)
         elif a == 3:
-            b
+            song_name = input("Ingrese nombre de la canción que desea hacer favorita: ")
+            hacer_favorito(cursor, song_name)
+
         elif a == 4:
-            a
+            quitar_favorito(cursor)
+
         elif a == 5:
             a
         # elif a == 6:
