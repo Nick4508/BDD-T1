@@ -86,7 +86,7 @@ def busqueda_repositorio(cursor, opcion, nombre):
         if len(b)== 0:
             print("Tal vez introdujiste mal el nombre del artista, intenta otra vez")
         else:
-            print("Datos del artista posicion/nombre_cancion/total_reproducciones")
+            print("Datos de las canciones del artista: posicion/nombre_cancion/total_reproducciones")
             for i in b:
                 print(str(i[0])+")",i[2] ,i[4] )
     elif opcion == "2": #cancion
@@ -115,6 +115,7 @@ def hacer_favorito(cursor,song_name):
     cancion = query2.fetchall()
     
     cursor.execute("INSERT INTO lista_favoritos (id,song_name,artist_name,fecha_agregada) VALUES (?,?,?,?)",cancion[0][0],cancion[0][1],cancion[0][2],datetime.now())
+    print("Se ha añadido a favoritos la canción escogida")
     return
 
 def mostrar_favoritos(cursor):
@@ -179,12 +180,16 @@ def main():
             b
         elif a == 2:
             mostrar_favoritos(cursor)
+            mostrar_opciones()
+
         elif a == 3:
             song_name = input("Ingrese nombre de la canción que desea hacer favorita: ")
             hacer_favorito(cursor, song_name)
+            mostrar_opciones()
 
         elif a == 4:
             quitar_favorito(cursor)
+            mostrar_opciones()
 
         elif a == 5:
             a
