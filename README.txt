@@ -14,3 +14,5 @@ Consideraciones:
     - La mayoria de interacciones con el menú dado, están resguardadas tal y como se pidió en las especificaciones
     de la tarea.
     - Se creo una View y una Funcion SQL que fueron utilizadas en los puntos 8 y 5 respectivamente.
+    - El total de streams en el repositorio_musica no se incrementa cada que el usuario reproduce una cancion
+    solo incrementa las veces reproducida
