@@ -19,13 +19,19 @@ str_conect = "Driver={SQL Server};Server=LAPTOP-QKCFS38M\SQLEXPRESS;Database=Spo
 
 
 def mostrar_opciones():
+    print("******************  MENÚ  ******************")
     print("1) Mostrar canciones reproducidas.")
     print("2) Mostrar canciones favoritas.")
     print("3) Hacer favorita una canción.")
     print("4) Quitar el favorito de una canción.")
     print("5) Reproducir una canción.")
-    print("5) Buscar una canción en la lista de canciones reproducidas.")
-    print("6)")
+    print("6) Buscar una canción en la lista de canciones reproducidas.")
+    print("7) Mostrar las canciones reproducidas dentro de los dias que se elijan.")
+    print("8) Buscar una canción ya sea por nombre o por artista.")
+    print("9) Top 15 artistas con mayor cantidad de reproducciones dentro del top 10.")
+    print("10) Mostrar el peak de un artista.")
+    print("11) Promedio de streams de un artista.")
+    print("12) Salir de Spot-USM")
 
 
 def primera_carga(cursor):
@@ -65,37 +71,39 @@ def peak_artista(cursor, artista):
     return
 
 def top_15(cursor):
-    query = cursor.execute("SELECT sum(top_10),artist_name FROM repositorio_musica GROUP BY artist_name")
+    query = cursor.execute("SELECT TOP 15 sum(top_10) AS suma_top ,artist_name FROM repositorio_musica GROUP BY artist_name ORDER BY suma_top DESC")
     top = query.fetchall()
-    new = sorted(top)
-    new.reverse()
-    print(str(new[:14]))
-    # for i in top:
-        # print(str(i))
-    print(str(top[-15::]))
+    print("El top 15 artistas con mas reproducciones dentro del top 10 son:")
+    x = 1
+    for i in top:
+        print(str(x)+")",str(i[1])+"con",str(i[0]),"streams dentro del top 10")
+        x+=1
 
 def busqueda_repositorio(cursor, opcion, nombre):
     if opcion == "1": # artista
-        lista = cursor.execute("SELECT song_name, top_10, total_streams FROM mostrar_repositorio_artista WHERE artist_name = '"+ nombre+"'")
+        lista = cursor.execute("SELECT * FROM mostrar_repositorio_artista WHERE artist_name like '%"+ nombre+"%'")
         b = lista.fetchall()
-        for i in b:
-            cancion = i[0]
-            top = i[1]
-            total = i[2]
-            print(cancion,str(top), str(total))
+        if len(b)== 0:
+            print("Tal vez introdujiste mal el nombre del artista, intenta otra vez")
+        else:
+            print("Datos del artista posicion/nombre_cancion/total_reproducciones")
+            for i in b:
+                print(str(i[0])+")",i[2] ,i[4] )
     elif opcion == "2": #cancion
-        lista = cursor.execute("SELECT artist_name, top_10, total_streams FROM mostrar_repositorio_artista where song_name = '"+nombre+"'")
+        lista = cursor.execute("SELECT * FROM mostrar_repositorio_artista where song_name like '%"+nombre+"%'")
         b = lista.fetchall()
-        for i in b:
-            artista = i[0]
-            top = i[1]
-            total = i[2]
-            print(artista, str(top), str(total))
+        if len(b) == 0:
+            print("No se encontraron canciones y/o artistas asociados")
+        else:
+            print("Datos de las canciones encontradas: posicion/nombre_cancion/nombre_artista/top_10")
+            for i in b:
+                print(str(i[0])+")",i[2],"del artista",i[1]+"la cual la estuvo",i[3],"veces dentro del top_10" )
+        
 
     # return
 
 def hacer_favorito(cursor,song_name):
-    query = cursor.execute("SELECT id, song_name, artist_name FROM repositorio_musica WHERE song_name like '%"+song_name+"%'")
+    query = cursor.execute("SELECT id, song_name, artist_name FROM repositorio_musica WHERE song_name like '"+song_name+"%'")
     canciones = query.fetchall()
 
     print("Elija el numero de la cancion que quiere hacer favorita")
@@ -141,25 +149,32 @@ def main():
     # cursor.execute("DROP TABLE repositorio_musica")
     # cursor.execute("DROP TABLE lista_favoritos")
     # cursor.execute("DROP TABLE reproduccion")
+    # cursor.execute("DROP VIEW mostrar_repositorio_artista")
 
     if not cursor.tables(table = "repositorio_musica").fetchone():
         cursor.execute("CREATE TABLE repositorio_musica (id int IDENTITY(1,1) PRIMARY KEY, position int, artist_name VARCHAR(100), song_name VARCHAR(100), days int, top_10 int, peak_position bigint, peak_position_time VARCHAR(10), peak_streams bigint, total_streams bigint)")
         primera_carga(cursor=cursor)
+
         cursor.execute("CREATE TABLE lista_favoritos (id int PRIMARY KEY, song_name VARCHAR(100), artist_name VARCHAR(100), fecha_agregada DATE)")
         cursor.execute("CREATE TABLE reproduccion (id int PRIMARY KEY, song_name VARCHAR(100), artist_name VARCHAR(100), fecha_reproduccion DATE, cant_reproducciones bigint, favorito bit)")
-    cursor.execute("CREATE VIEW mostrar_repositorio_artista AS SELECT position, artist_name, song_name, top_10, total_streams FROM repositorio_musica")
+        cursor.execute("CREATE VIEW mostrar_repositorio_artista AS SELECT position, artist_name, song_name, top_10, total_streams FROM repositorio_musica")
 
-
+    cursor.commit()
     # cursor.execute("DELETE FROM repositorio_musica")
     
 
    
     opciones = True
     print("Bienvenido a Spot-USM, elija una de estas opciones para realizar:")
-
+    mostrar_opciones()
 
     while opciones:
-        a = int(input("INGRESE OPCION: "))
+        a = input("INGRESE OPCION: ")
+        print("**********************************")
+        try:
+            a = int(a)
+        except ValueError:
+            pass
         if a == 1:
             b
         elif a == 2:
@@ -177,25 +192,33 @@ def main():
         # elif a == 7:
         elif a == 8:
             opcion = input("Desea buscar por artista o canción? (ingrese 1 para buscar por nombre de artista, 2 para buscar por nombre de canción) : ")
-            nombre = input("ingrese nombre de artista/canción :")
             if opcion == "1" or opcion == "2":
-                
+                nombre = input("ingrese nombre de artista/canción: ")
                 busqueda_repositorio(cursor, opcion, nombre)
             else: 
                 print("Lo siento no escogiste una opción válida")
+            mostrar_opciones()
         elif a == 9:
             top_15(cursor)
+            print("**********************************")
+            mostrar_opciones()
         elif a == 10:
             opcion = input("Ingrese nombre del artista deseado: ")
             peak_artista(cursor, opcion)
+            print("**********************************")
+            mostrar_opciones()
         elif a == 11:
             print("Por favor ingrese el nombre del artista deseado:")
             artista = input()
             promedio_artista(cursor, artista)
+            print("**********************************")
+            mostrar_opciones()
         elif a == 12:
-            print("Salir")
+            print("Gracias por interactuar con Spot-USM")
+            break
         else: 
-            print("Error en opción ingresada, por favor ingrese una opción válida")
+            print("*********Error en opción ingresada, por favor ingrese una opción válida*********")
+            mostrar_opciones()
 
     #     a = 0
     
